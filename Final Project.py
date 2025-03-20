@@ -33,18 +33,12 @@ while True:
     if add_expense != 'yes':
         break
 
-    exp_name = input("Enter expense name (e.g., Bills, Rent): ")
-    expense = ExpenseNode(exp_name)
-
-    has_sub = input(f"Does '{exp_name}' have subcategories? (yes/no): ").lower()
+    try:
+        num_sub = int(input(f"How many subcategories do you want to add for '{exp_name}'? "))
+    except ValueError:
+        print("Invalid number. Skipping subcategories.")
+        num_sub = 0
     total_expense = 0
-
-    if has_sub == 'yes':
-        try:
-            num_sub = int(input(f"How many subcategories for '{exp_name}'? "))
-        except ValueError:
-            print("Invalid number. Skipping subcategories.")
-            num_sub = 0
 
         for _ in range(num_sub):
             sub_name = input("  Enter subcategory name: ")
