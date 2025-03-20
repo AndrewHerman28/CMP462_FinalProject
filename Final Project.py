@@ -19,6 +19,7 @@ class ExpenseNode:
         for child in self.children:
             child.display(level + 1, income)
 
+
 # Get income
 income = float(input("Enter your monthly income: $"))
 remaining_money = income
@@ -33,13 +34,16 @@ while True:
     if add_expense != 'yes':
         break
 
+    exp_name = input("Enter expense name (e.g., Bills, Rent): ")
+    expense = ExpenseNode(exp_name)
+
     try:
         num_sub = int(input(f"How many subcategories do you want to add for '{exp_name}'? "))
     except ValueError:
         print("Invalid number. Skipping subcategories.")
         num_sub = 0
     total_expense = 0
-
+    if num_sub > 0:
         for _ in range(num_sub):
             sub_name = input("  Enter subcategory name: ")
             sub_amount = float(input(f"  Enter amount for {sub_name}: $"))
@@ -64,6 +68,7 @@ if remaining_money > 0:
     savings = ExpenseNode("Savings")
     savings.amount = remaining_money
     root.add_child(savings)
+
 
 # Final report
 root.calculate_total()
