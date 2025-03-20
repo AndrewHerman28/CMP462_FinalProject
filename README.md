@@ -25,8 +25,3 @@ Develop a GUI application that visualizes users' expenses based on their:
 ✅ Salary-based income estimation  
 
 ---
-
-### Getting Started  
-1. Clone the repository:  
-   ```sh
-   git clone https://github.com/your-username/repository-name.git
