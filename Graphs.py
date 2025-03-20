@@ -1,11 +1,21 @@
 import matplotlib.pyplot as plt
 
-def display_graph(self):
-  plt.plot(self.net_earnings, marker='o', linestyle='-', color='b')
-  plt.xlabel("Transactions")
-  plt.ylabel("Net Earnings")
-  plt.title("Net Earnings Over Time")
-  plt.grid()
-  plt.show()
+# Get input values from the user
+values = input("Enter numbers separated by spaces: ")
+values = list(map(float, values.split()))  # Convert input to a list of floats
 
-display_graph()
+# Generate x values (indices of the input values)
+x_values = list(range(1, len(values) + 1))
+
+# Plot the values (The main function)
+plt.plot(x_values, values, marker='o', linestyle='-', color='b', label='Input Values')
+
+# Add labels and title
+plt.xlabel('Index')
+plt.ylabel('Value')
+plt.title('Line Chart of Input Values')
+plt.legend()
+plt.grid()
+
+# Show the graph
+plt.show()
