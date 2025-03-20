@@ -8,4 +8,4 @@ def display_graph(self):
   plt.grid()
   plt.show()
 
-tree.display_graph()
+display_graph()
