@@ -1,8 +1,60 @@
-import tkinter as tk
+import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from datetime import datetime
 
-def expenseReport(arr):
+
+def make_pie_chart(fig, arr, values, names, pos, chart_name):
+    pie_chart = fig.add_subplot(pos)
+    wedges, texts, autotexts = pie_chart.pie(values, labels=names, autopct='%1.1f%%',
+                                             startangle=90, shadow=True,
+                                             colors=plt.cm.Paired.colors)  # Use color palette for better distinction
+    pie_chart.set_title(chart_name)
+
+    for text in texts:
+        text.set_fontsize(12)  # Adjust label font size for readability
+    for autotext in autotexts:
+        autotext.set_fontsize(12)  # Adjust percentage font size
+        autotext.set_color('white')  # Make percentage text white for contrast
+
+
+def make_bar_graph(fig, arr, values, names, pos, chart_name):
+    bar_graph = fig.add_subplot(pos)
+    bars = bar_graph.bar(names, values, color=plt.cm.Set3.colors, width=0.5)  # Use a nice color palette
+
+    bar_graph.set_title(chart_name, pad=10)
+    bar_graph.set_xlabel("Categories", labelpad=10)
+    bar_graph.set_ylabel("Values", labelpad=10)
+
+    bar_graph.margins(y=0.2)
+    bar_graph.set_xticks(range(len(names)))
+    bar_graph.set_xticklabels(names, rotation=45, ha="right", fontsize=10)  # Rotating labels for clarity
+
+    # Add gridlines to improve readability
+    bar_graph.grid(True, axis='y', linestyle='--', alpha=0.7)
+
+    # Adjust subplot spacing
+    fig.subplots_adjust(bottom=0.2)
+
+
+def make_line_graph(fig, arr, values, dates, pos, chart_name):
+    sorted_dates = sorted(dates, key=lambda date: datetime.strptime(date, "%m/%d/%y"))
+
+    line_chart = fig.add_subplot(pos)
+    line_chart.plot(sorted_dates, values, marker='o', linestyle='-', color='dodgerblue', markersize=8, linewidth=2)
+
+    line_chart.set_title(chart_name, pad=10)
+    line_chart.set_xlabel("Date")
+    line_chart.set_ylabel("Amount Spent")
+
+    line_chart.set_xticks(sorted_dates[::2])  # Show fewer x-ticks for better readability
+    line_chart.set_xticklabels(sorted_dates[::2], rotation=45, ha="right", fontsize=10)
+
+    # Add gridlines to make trends clearer
+    line_chart.grid(True, axis='both', linestyle='--', alpha=0.6)
+
+
+def expenseReport(arr, window):
     values = []
     names = []
     dates = []
@@ -12,45 +64,25 @@ def expenseReport(arr):
         names.append(x.name)
         dates.append(x.date)
 
-
     total = sum(values)
 
-    # Create a figure and pie chart
-    fig = Figure(figsize=(12, 8), dpi=100) #DPI is how sharp itll look but takes more memory
+    # Create a figure with enhanced spacing and size for better readability
+    fig = Figure(figsize=(12, 8), dpi=100)  # Increase figure size for clarity
 
-    # Adjust spacing between subplots
-    fig.subplots_adjust(wspace=1)  # Increase spacing
+    # Adjust spacing between subplots and bottom margin
+    fig.subplots_adjust(wspace=0.3, hspace=0.5, bottom=0.25)  # Increased bottom margin for better label spacing
 
-    pie_chart = fig.add_subplot(121) #Row #Column #Position
-    pie_chart.pie(values, labels=names, autopct='%1.1f%%')
-    pie_chart.set_title("Pie Chart")
+    # Generate charts
+    make_pie_chart(fig, arr, values, names, 131, "Pie Chart")
+    make_bar_graph(fig, arr, values, names, 132, "Bar Graph")
+    make_line_graph(fig, arr, values, dates, 133, "Line Graph")
 
-    # Bar chart with increased spacing
-    ax1 = fig.add_subplot(122)
-    bars = ax1.bar(names, values, color='blue', width=0.4)  # Decreased width to increase spacing
-
-    # Improve spacing and readability
-    ax1.set_title("Bar Chart", pad=15)  # Add padding to title
-    ax1.set_xlabel("Categories", labelpad=10)  # Increase label padding
-    ax1.set_ylabel("Values", labelpad=10)
-    ax1.margins(y=0.2)  # Add margin above bars
-    ax1.set_xticks(range(len(names)))  # Ensure correct x-tick positions
-    ax1.set_xticklabels(names, rotation=30, ha="right")  # Rotate and align labels
-
-    # Embed the figure in Tkinter window
+    # Embed the figure in the Tkinter window
     global canvas
     if 'canvas' in globals():
-        canvas.get_tk_widget().destroy()  # Remove previous graph if exists
+        canvas.get_tk_widget().destroy()
 
     canvas = FigureCanvasTkAgg(fig, master=window)
     canvas.get_tk_widget().place(x=0, y=0)
     canvas.draw()
 
-# Build Window
-window = tk.Tk()
-window.title("Personal Finance Manager")
-window.geometry("1600x1000")  # Increased size to fit the graph
-window.attributes("-topmost", 1)
-
-expenseReport(tuple_values)
-window.mainloop()
