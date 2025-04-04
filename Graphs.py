@@ -4,7 +4,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from datetime import datetime
 
 
-def make_pie_chart(fig, arr, values, names, pos, chart_name):
+def make_pie_chart(fig, values, names, pos, chart_name):
     pie_chart = fig.add_subplot(pos)
     wedges, texts, autotexts = pie_chart.pie(values, labels=names, autopct='%1.1f%%',
                                              startangle=90, shadow=True,
@@ -18,7 +18,7 @@ def make_pie_chart(fig, arr, values, names, pos, chart_name):
         autotext.set_color('white')  # Make percentage text white for contrast
 
 
-def make_bar_graph(fig, arr, values, names, pos, chart_name):
+def make_bar_graph(fig, values, names, pos, chart_name):
     bar_graph = fig.add_subplot(pos)
     bars = bar_graph.bar(names, values, color=plt.cm.Set3.colors, width=0.5)  # Use a nice color palette
 
@@ -37,7 +37,7 @@ def make_bar_graph(fig, arr, values, names, pos, chart_name):
     fig.subplots_adjust(bottom=0.2)
 
 
-def make_line_graph(fig, arr, values, dates, pos, chart_name):
+def make_line_graph(fig, values, dates, pos, chart_name):
     sorted_dates = sorted(dates, key=lambda date: datetime.strptime(date, "%m/%d/%y"))
 
     line_chart = fig.add_subplot(pos)
@@ -73,9 +73,9 @@ def expenseReport(arr, window):
     fig.subplots_adjust(wspace=0.3, hspace=0.5, bottom=0.25)  # Increased bottom margin for better label spacing
 
     # Generate charts
-    make_pie_chart(fig, arr, values, names, 131, "Pie Chart")
-    make_bar_graph(fig, arr, values, names, 132, "Bar Graph")
-    make_line_graph(fig, arr, values, dates, 133, "Line Graph")
+    make_pie_chart(fig, values, names, 131, "Pie Chart")
+    make_bar_graph(fig, values, names, 132, "Bar Graph")
+    make_line_graph(fig, values, dates, 133, "Line Graph")
 
     # Embed the figure in the Tkinter window
     global canvas
