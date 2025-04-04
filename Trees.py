@@ -1,18 +1,20 @@
 class Node:
-    def __init__(self, name, amount=0):
+    def __init__(self, name, date, amount=0):
         self.name = name
         self.amount = amount
+        self.date = date
         self.left = None
         self.right = None
+
 class Tree:
     def __init__(self, name):
         self.root = None
         self.name = name
         self.total_amount = 0
 
-    def insert(self, name, amount):
+    def insert(self, name, date, amount):
         # inserts a node into the tree
-        new_node = Node(name, amount)
+        new_node = Node(name, date, amount)
         self.total_amount += amount
 
         if self.root is None:
@@ -54,22 +56,24 @@ while True:
     expense_tree = Tree(exp_name)
     exp_amount = 0
 
+    exp_date = input("Enter expense date: ")
+
     num_sub = int(input(f"How many subcategories does '{exp_name}' have? (0 for none): "))
 
     if num_sub > 0:
         sub_name = input("  Enter subcategory name: ")
         sub_amount = float(input(f"  Enter amount for {sub_name}: $"))
         exp_amount += sub_amount
-        expense_tree.insert(sub_name, sub_amount)  # first subcategory becomes root
+        expense_tree.insert(sub_name, exp_date, sub_amount)  # first subcategory becomes root
 
         for _ in range(num_sub - 1):
             sub_name = input("  Enter subcategory name: ")
             sub_amount = float(input(f"  Enter amount for {sub_name}: $"))
             exp_amount += sub_amount
-            expense_tree.insert(sub_name, sub_amount)
+            expense_tree.insert(sub_name, exp_date, sub_amount)
     else:
         exp_amount = float(input(f"Enter amount for {exp_name}: $"))
-        expense_tree.insert(exp_name, exp_amount)
+        expense_tree.insert(exp_name, exp_date, exp_amount)
 
     total_spent += exp_amount
     expense_trees.append(expense_tree)
