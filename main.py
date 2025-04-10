@@ -6,10 +6,10 @@ import matplotlib.pyplot as plt
 from tkinter import ttk
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import readFile
+import readFile # Read.File.py in repo
 
-import graph
-import tree
+import graph # Graphs.py in repo
+import tree # Trees.py in repo
 
 
 class PFM(tk.Tk):
