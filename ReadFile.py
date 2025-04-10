@@ -20,7 +20,7 @@ def open_file_dialog():
         print(f"Selected file: {file_path}")
         ext = os.path.splitext(file_path)[1].lower()
 
-        if ext == '.csv' or ext = '.txt':
+        if ext == '.csv' or ext == '.txt':
             data = parse_and_build_trees(file_path)
             return data  # return for displayData
         else:
