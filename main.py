@@ -1,4 +1,5 @@
-# GUI Display + main (calls trees and graphs functions)
+# GUI Display
+# GUI + main (calls tree and graph)
 
 import tkinter as tk
 import matplotlib.pyplot as plt
@@ -9,8 +10,6 @@ import readFile
 
 import graph
 import tree
-from final_proj.readFile import open_file_dialog
-# "final_proj.readFile" REPLACE WITH WHERE YOUR <ReadFile.py> is stored
 
 
 class PFM(tk.Tk):
@@ -63,7 +62,7 @@ class PFM(tk.Tk):
         self.searchButton.pack(side = "top", pady = 10)
         self.viewButton = tk.Button(self, text = "View Expense Data", fg = "midnightblue", font = ("Times New Roman", 20), width = 20, height = 3, command = self.viewPage)
         self.viewButton.pack(side = 'top', pady = 10)
-        self.importButton = tk.Button(self, text = "Import Data", fg = "midnightblue", font = ("Times New Roman", 20),width = 20, height = 3, command=self.importDataPage)
+        self.importButton = tk.Button(self, text = "Import Data", fg = "midnightblue", font = ("Times New Roman", 20),width = 20, height = 3, command=self.importDataButton)
         self.importButton.pack(side = 'top', pady = 10)
 
     def addPage(self):
@@ -169,9 +168,10 @@ class PFM(tk.Tk):
         def displayGraph():
             graphChoice = selected_option1.get()
             graphGroupChoice = selected_option2.get()
+
             global canvas
 
-            fig = Figure(figsize=(6, 5), dpi=100)
+            fig = Figure(figsize=(7, 5), dpi=100)
             ax = fig.add_subplot(111)
 
             if graphChoice == "Pie Chart":
@@ -179,7 +179,13 @@ class PFM(tk.Tk):
                 if 'canvas' in globals():
                     canvas.get_tk_widget().destroy()  # Remove previous graph if exists
 
-                graph.make_pie_chart(fig, [], self.expensesVals, self.expenses, 111, "Monthly Expense Report")
+                values = []
+                names_and_dates = []
+                for item in options2dict[graphGroupChoice]:
+                    values.append(float(item[2]))
+                    names_and_dates.append(str(item[0]) + ": " + str(item[1]))
+
+                graph.make_pie_chart(fig, values, names_and_dates, 111, f"{graphGroupChoice} Expense Report")
 
             elif graphChoice == "Bar Chart":
 
@@ -187,7 +193,13 @@ class PFM(tk.Tk):
                 if 'canvas' in globals():
                     canvas.get_tk_widget().destroy()  # Remove previous graph if exists
 
-                graph.make_bar_graph(fig, [], self.expensesVals, self.expenses, 111, "Monthly Expense Report")\
+                values = []
+                names_and_dates = []
+                for item in options2dict[graphGroupChoice]:
+                    values.append(float(item[2]))
+                    names_and_dates.append(str(item[0]) + ": " + str(item[1]))
+
+                graph.make_bar_graph(fig, values, names_and_dates, 111, f"{graphGroupChoice} Expense Report")
 
             elif graphChoice == "Timeline Chart":
 
@@ -195,7 +207,14 @@ class PFM(tk.Tk):
                     canvas.get_tk_widget().destroy()  # Remove previous graph if exists
 
                 try:
-                    graph.make_line_graph(fig, [], self.expensesVals, self.dates, 111, "Monthly Expense Report")
+                    values = []
+                    names = []
+                    dates = []
+                    for item in options2dict[graphGroupChoice]:
+                        values.append(float(item[2]))
+                        dates.append(item[1])
+                        names.append(item[0])
+                    graph.make_line_graph(fig, values, dates, 111, "Monthly Expense Report")
 
                 except ValueError:
                     self.errorLabel = tk.Label(self, text = "\nError! Date improper format-- use mm/dd/yyyy", font = ("Times New Roman", 20), width = 40, bg = "midnightblue")
@@ -206,6 +225,19 @@ class PFM(tk.Tk):
             canvas.get_tk_widget().pack(side="top", pady=10)
             canvas.draw()
 
+        def convertDatatoDictionary():
+            for item in range(len(self.displayData[0])):
+                key = self.displayData[0][item]
+                value = self.displayData[1][item]
+                date = self.displayData[2][item]
+                amount = self.displayData[3][item]
+                if key not in options2dict:
+                    options2dict[key] = [[value, date, amount]]
+                else:
+                    options2dict[key].append([value, date, amount])
+            options2dict["All Expenses"] = self.displayData[1]
+
+
         self.pageTitle = tk.Label(self, text="View Expense Data\n----------------------------------", font=("Times New Roman", 22), bg="midnightblue")
         self.pageTitle.pack(side="top")
 
@@ -215,23 +247,21 @@ class PFM(tk.Tk):
         dropdown1.pack(side = "top", pady = 10)
 
         selected_option2 = tk.StringVar()
-        options2 = self.expenseGroups
-        dropdown2 = tk.OptionMenu(self, selected_option2, *options2)
+        options2dict = {}
+
+        convertDatatoDictionary()
+
+        dropdown2 = tk.OptionMenu(self, selected_option2, *options2dict.keys())
         dropdown2.pack(side = "top", pady = 10)
 
         enterButton = tk.Button(self, text = "Submit Graph Choice", font = ("Times New Roman", 16), command = displayGraph)
         enterButton.pack(side = "top", pady = 10)
 
-    def importDataPage(self):
+    def importDataButton(self):
+        self.displayData = readFile.open_file_dialog()
 
-        self.clear()
-        self.createReturnButton()
-
-        self.pageTitle = tk.Label(self, text="Import Data\n----------------------------------", font=("Times New Roman", 22), bg="midnightblue")
-        self.pageTitle.pack(side="top")
-
-        fileButton = tk.Button(self, text="Choose a File...", font=("Times New Roman", 16), command=open_file_dialog)
-        fileButton.pack(side="top", pady=10)
+        self.successLabel = tk.Label(self, text="Data Successfully Imported...", font=("Times New Roman", 16), bg = "midnightblue")
+        self.successLabel.pack(side = "top", pady = 10)
 
 
 if __name__ == "__main__":
