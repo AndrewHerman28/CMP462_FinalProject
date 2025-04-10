@@ -1,5 +1,4 @@
-# GUI Display
-# Test 3 -- Created multiple pages (each page as function) in 1 GUI class
+# GUI Display + main (calls trees and graphs functions)
 
 import tkinter as tk
 import matplotlib.pyplot as plt
