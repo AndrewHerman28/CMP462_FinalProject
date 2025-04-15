@@ -2,15 +2,12 @@
 # GUI + main (calls tree and graph)
 
 import tkinter as tk
-import matplotlib.pyplot as plt
-from tkinter import ttk
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import readFile # Read.File.py in repo
+import readFile # ReadFile.py in repo
 
 import graph # Graphs.py in repo
 import tree # Trees.py in repo
-
 
 class PFM(tk.Tk):
 
@@ -28,6 +25,7 @@ class PFM(tk.Tk):
         self.expensesVals = []
         self.dates = []
         self.dataTree = tree.Tree("Expense-Values Data")
+        self.imported = False
 
         self.homePage()
 
@@ -71,18 +69,25 @@ class PFM(tk.Tk):
         self.createReturnButton()
 
         def saveExpensesAndVals():
+            # This function saves the data as a node into the data tree. The data tree is used in the Search/Remove Menu and the Add Menu.
+            # It also saves each data attribute into different lists for the View Expenses Menu.
             expGroup = self.expenseGroup.get()
             exp = self.expense.get()
             val = float(self.amount.get())
             date = self.date.get()
+
             self.expenseGroups.append(expGroup)
             self.expenses.append(exp)
             self.expensesVals.append(val)
             self.dates.append(date)
+
             self.expenseGroup.delete(0, "end")
             self.expense.delete(0, "end")
             self.amount.delete(0, "end")
             self.date.delete(0, "end")
+
+            self.savedData = tk.Label(self, text = "Data Successfully Submitted...", font = ("Times New Roman", 18), bg = "midnightblue")
+            self.savedData.place(x=275, y=600)
 
             self.dataTree.insert(expGroup, exp, date, val)
             self.dataTree.display(self.dataTree.root)
@@ -95,6 +100,12 @@ class PFM(tk.Tk):
         self.expenseGroup = tk.Entry(self, width=20, justify="center")
         self.expenseGroup.pack(side="top", pady=10)
         self.expenseGroup.focus_set()
+
+        """
+        self.checked = IntVar()
+        self.group = Checkbutton(self, text="Keep adding to this expense group", variable=self.checked, font=("Times New Roman", 14), width=30, bg="midnightblue")
+        self.group.place(x=525, y=125)
+        """
 
         self.expenseLabel = tk.Label(self, text = "Enter an sub-expense of the expense group:", font = ("Times New Roman", 20), width = 40, bg = "midnightblue")
         self.expenseLabel.pack(side = "top")
@@ -123,35 +134,31 @@ class PFM(tk.Tk):
         self.createReturnButton()
 
         def search():
-            value = float(self.expenseVal.get())
-            date = self.expenseDate.get()
-            name = self.expense.get()
+            # Currently searches based on amount, want to change this to be based off expense name (not group)
+            amount = float(self.expenseAmountField.get())
+            self.searchData = self.dataTree.search(self.dataTree.root, self.amount)
+            print(self.searchData)
+            if None not in self.searchData:
+                self.searchDisplay = tk.Label(self, text = f"Expense Group: {self.searchData[0]}\n"
+                                                           f"Expense Name: ${self.searchData[1]}\n"
+                                                           f"Expense Date: {self.searchData[2]}", font = ("Times New Roman", 20), bg = "green")
+                self.searchDisplay.pack(side="top", pady=10)
+            else:
+                self.searchDisplay = tk.Label(self, text="Data Not Found-- Try Again", font = ("Times New Roman", 20), bg = "red")
+                self.searchDisplay.pack(side="top", pady=10)
 
         def remove():
-            value = float(self.expenseVal.get())
-            date = self.expenseDate.get()
-            name = self.expense.get()
+            amount = float(self.expenseAmountField.get())
+            # Not done yet with remove function
 
         self.pageTitle = tk.Label(self, text = "Search/Remove Expenses\n----------------------------------", font = ("Times New Roman", 22), bg = "midnightblue")
         self.pageTitle.pack(side = "top")
 
-        self.expenseLabel = tk.Label(self, text="Enter an expense name:", font=("Times New Roman", 20), width=40, bg="midnightblue")
+        self.expenseLabel = tk.Label(self, text="Enter an expense amount:", font=("Times New Roman", 20), width=40, bg="midnightblue")
         self.expenseLabel.pack(side="top")
-        self.expense = tk.Entry(self, width=20, justify="center")
-        self.expense.pack(side="top", pady=10)
-        self.expense.focus_set()
-
-        self.expenseValLabel = tk.Label(self, text="\nEnter an expense value (300):", font=("Times New Roman", 20),width=40, bg="midnightblue")
-        self.expenseValLabel.pack(side="top")
-        self.expenseVal = tk.Entry(self, width=20, justify="center")
-        self.expenseVal.pack(side="top", pady=10)
-        self.expenseVal.focus_set()
-
-        self.expenseDateLabel = tk.Label(self, text = "\nEnter an expense date (mm/dd/yyyy):", font = ("Times New Roman", 20), width = 40, bg = "midnightblue")
-        self.expenseDateLabel.pack(side = "top")
-        self.expenseDate = tk.Entry(self, width = 20, justify = "center")
-        self.expenseDate.pack(side = "top", pady = 10)
-        self.expenseDate.focus_set()
+        self.expenseAmountField = tk.Entry(self, width=20, justify="center")
+        self.expenseAmountField.pack(side="top", pady=10)
+        self.expenseAmountField.focus_set()
 
         self.searchOrRemove = tk.Label(self, text="Would you like to search or remove this expense?", font=("Times New Roman", 20), width=40, bg="midnightblue")
         self.searchOrRemove.pack(side="top", pady=10)
@@ -179,13 +186,17 @@ class PFM(tk.Tk):
                 if 'canvas' in globals():
                     canvas.get_tk_widget().destroy()  # Remove previous graph if exists
 
-                values = []
-                names_and_dates = []
-                for item in options2dict[graphGroupChoice]:
-                    values.append(float(item[2]))
-                    names_and_dates.append(str(item[0]) + ": " + str(item[1]))
-
-                graph.make_pie_chart(fig, values, names_and_dates, 111, f"{graphGroupChoice} Expense Report")
+                if self.imported and graphGroupChoice != "All Expenses":
+                    values = []
+                    names_and_dates = []
+                    for item in options2dict[graphGroupChoice]:
+                        values.append(float(item[2]))
+                        names_and_dates.append(str(item[0]) + ": " + str(item[1]))
+                    graph.make_pie_chart(fig, values, names_and_dates, 111, f"{graphGroupChoice} Expense Report")
+                elif graphGroupChoice == "All Expenses":
+                    graph.make_pie_chart(fig, self.displayData[3], self.displayData[1], 111, "All Expenses Report")
+                else:
+                    graph.make_pie_chart(fig, self.expensesVals, self.expenses, 111, f"Expense Report")
 
             elif graphChoice == "Bar Chart":
 
@@ -193,13 +204,17 @@ class PFM(tk.Tk):
                 if 'canvas' in globals():
                     canvas.get_tk_widget().destroy()  # Remove previous graph if exists
 
-                values = []
-                names_and_dates = []
-                for item in options2dict[graphGroupChoice]:
-                    values.append(float(item[2]))
-                    names_and_dates.append(str(item[0]) + ": " + str(item[1]))
-
-                graph.make_bar_graph(fig, values, names_and_dates, 111, f"{graphGroupChoice} Expense Report")
+                if self.imported and graphGroupChoice != "All Expenses":
+                    values = []
+                    names_and_dates = []
+                    for item in options2dict[graphGroupChoice]:
+                        values.append(float(item[2]))
+                        names_and_dates.append(str(item[0]) + ": " + str(item[1]))
+                    graph.make_bar_graph(fig, values, names_and_dates, 111, f"{graphGroupChoice} Expense Report")
+                elif graphGroupChoice == "All Expenses":
+                    graph.make_bar_graph(fig, self.displayData[3], self.displayData[1], 111, "All Expenses Report")
+                else:
+                    graph.make_bar_graph(fig, self.expensesVals, self.expenses, 111, f"Expense Report")
 
             elif graphChoice == "Timeline Chart":
 
@@ -207,14 +222,19 @@ class PFM(tk.Tk):
                     canvas.get_tk_widget().destroy()  # Remove previous graph if exists
 
                 try:
-                    values = []
-                    names = []
-                    dates = []
-                    for item in options2dict[graphGroupChoice]:
-                        values.append(float(item[2]))
-                        dates.append(item[1])
-                        names.append(item[0])
-                    graph.make_line_graph(fig, values, dates, 111, "Monthly Expense Report")
+                    if self.imported and graphGroupChoice != "All Expenses":
+                        values = []
+                        names = []
+                        dates = []
+                        for item in options2dict[graphGroupChoice]:
+                            values.append(float(item[2]))
+                            dates.append(item[1])
+                            names.append(item[0])
+                        graph.make_line_graph(fig, values, dates, 111, "Monthly Expense Report")
+                    elif graphGroupChoice == "All Expenses":
+                        graph.make_line_graph(fig, self.displayData[3], self.displayData[2], 111, "Monthly Expense Report")
+                    else:
+                        graph.make_line_graph(fig, self.expensesVals, self.dates, 111, "All Expenses Report")
 
                 except ValueError:
                     self.errorLabel = tk.Label(self, text = "\nError! Date improper format-- use mm/dd/yyyy", font = ("Times New Roman", 20), width = 40, bg = "midnightblue")
@@ -249,20 +269,22 @@ class PFM(tk.Tk):
         selected_option2 = tk.StringVar()
         options2dict = {}
 
-        convertDatatoDictionary()
-
-        dropdown2 = tk.OptionMenu(self, selected_option2, *options2dict.keys())
-        dropdown2.pack(side = "top", pady = 10)
+        if self.imported:
+            convertDatatoDictionary()
+            dropdown2 = tk.OptionMenu(self, selected_option2, *options2dict.keys())
+            dropdown2.pack(side="top", pady=10)
 
         enterButton = tk.Button(self, text = "Submit Graph Choice", font = ("Times New Roman", 16), command = displayGraph)
         enterButton.pack(side = "top", pady = 10)
 
     def importDataButton(self):
-        self.displayData = readFile.open_file_dialog()
+        # Currently, only works when import data and then view, does not if imported and then add more with add menu
+        self.displayData = readFile.open_file_dialog(self)
 
         self.successLabel = tk.Label(self, text="Data Successfully Imported...", font=("Times New Roman", 16), bg = "midnightblue")
         self.successLabel.pack(side = "top", pady = 10)
 
+        self.imported = True
 
 if __name__ == "__main__":
     pfm = PFM()
