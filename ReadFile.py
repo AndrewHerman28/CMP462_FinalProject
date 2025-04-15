@@ -72,6 +72,8 @@ def build_trees(data):
     dates = list()
     values = list()
 
+    print(data)
+
     for category in data:
         dataTree = tree.Tree(category)
         trees.add(dataTree)
@@ -83,9 +85,9 @@ def build_trees(data):
             values.append(value)
             date = entry['Date']
             dates.append(date)
-            print(category, subcategory, date, value)
+            dataTree.insert(category, subcategory, date, value)
 
-    return categories, subcategories, dates, values
+    for item in trees:
+        item.display(item.root)
 
-            # Optionally insert into your tree here
-            # tree.insert(subcategory, value, date)
+    return categories, subcategories, dates, values, trees
