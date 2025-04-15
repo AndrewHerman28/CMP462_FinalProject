@@ -39,13 +39,11 @@ class Tree:
         if node is None:
             return None
         if node.amount == amount:
-            return node.group, node.amount, node.date
+            return node.group, node.name, node.amount, node.date
         elif amount < node.amount:
-            self.search(node.left, amount)
-            return node.left.group, node.left.amount, node.left.date
+            return self.search(node.left, amount)
         elif amount > node.amount:
-            self.search(node.right, amount)
-            return node.right.group, node.right.amount, node.right.date
+            return self.search(node.right, amount)
         else:
             return None, None, None
 
