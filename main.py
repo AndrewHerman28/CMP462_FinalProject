@@ -26,6 +26,7 @@ class PFM(tk.Tk):
         self.dates = []
         self.dataTree = tree.Tree("Expense-Values Data")
         self.imported = False
+        self.displayData = None
 
         self.homePage()
 
@@ -136,23 +137,34 @@ class PFM(tk.Tk):
         def search():
             # Currently searches based on amount, want to change this to be based off expense name (not group)
             amount = float(self.expenseAmountField.get())
-            self.searchData = self.dataTree.search(self.dataTree.root, self.amount)
-            print(self.searchData)
-            if None not in self.searchData:
-                self.searchDisplay = tk.Label(self, text = f"Expense Group: {self.searchData[0]}\n"
-                                                           f"Expense Name: ${self.searchData[1]}\n"
-                                                           f"Expense Date: {self.searchData[2]}", font = ("Times New Roman", 20), bg = "green")
-                self.searchDisplay.pack(side="top", pady=10)
+            if self.displayData is not None:
+                for item in self.displayData[4]:
+                    searchDataFound = item.search(item.root, amount)
+                    if searchDataFound is None:
+                        continue
+                    # self.searchData = self.dataTree.search(self.dataTree.root, amount)
+                    self.searchDisplay = tk.Label(self, text = f"Expense Group: {searchDataFound[0]}\n"
+                                                                f"Expense Name: {searchDataFound[1]}\n"
+                                                                f"Expense Amount: ${searchDataFound[2]}\n"
+                                                                f"Expense Date: {searchDataFound[3]}", font = ("Times New Roman", 20), bg = "green")
+                    self.searchDisplay.pack(side="top", pady=10)
             else:
-                self.searchDisplay = tk.Label(self, text="Data Not Found-- Try Again", font = ("Times New Roman", 20), bg = "red")
+                searchDataFound = self.dataTree.search(self.dataTree.root, amount)
+                self.searchDisplay = tk.Label(self, text=f"Expense Group: {searchDataFound[0]}\n"
+                                                         f"Expense Name: {searchDataFound[1]}\n"
+                                                         f"Expense Amount: ${searchDataFound[2]}\n"
+                                                         f"Expense Date: {searchDataFound[3]}",
+                                              font=("Times New Roman", 20), bg="green")
                 self.searchDisplay.pack(side="top", pady=10)
 
         def remove():
             amount = float(self.expenseAmountField.get())
+            self.remove = self.dataTree.remove(amount)
             # Not done yet with remove function
 
         self.pageTitle = tk.Label(self, text = "Search/Remove Expenses\n----------------------------------", font = ("Times New Roman", 22), bg = "midnightblue")
         self.pageTitle.pack(side = "top")
+
 
         self.expenseLabel = tk.Label(self, text="Enter an expense amount:", font=("Times New Roman", 20), width=40, bg="midnightblue")
         self.expenseLabel.pack(side="top")
