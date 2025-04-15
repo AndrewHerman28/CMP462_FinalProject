@@ -3,7 +3,7 @@ import os
 import tkinter as tk
 from tkinter import filedialog
 from collections import defaultdict
-import tree  # Make sure TempTree.py is in the same directory
+import tree  # Trees.py in repo
 
 # GUI file picker and logic handler
 def open_file_dialog(window):
