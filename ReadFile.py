@@ -3,17 +3,18 @@ import os
 import tkinter as tk
 from tkinter import filedialog
 from collections import defaultdict
-import tree  # Trees.py in repo
+import tree  # Make sure TempTree.py is in the same directory
 
 # GUI file picker and logic handler
-def open_file_dialog():
+def open_file_dialog(window):
     file_path = filedialog.askopenfilename(
         title="Select a file",
         filetypes=[
             ("CSV files", "*.csv"),
             ("Text files", "*.txt"),
             ("All files", "*.*")
-        ]
+        ],
+        parent = window
     )
 
     if file_path:
@@ -42,7 +43,7 @@ def parse_and_build_trees(file_path):
             data[main_category].append(subcategory_info)
 
     lists = build_trees(data)
-    return(lists)  # return for displayData
+    return(lists)
 
 # Function to parse and build trees from a TXT file (if same structure as CSV)
 def parse_txt_and_build_trees(file_path):
@@ -60,7 +61,7 @@ def parse_txt_and_build_trees(file_path):
             data[main_category].append(subcategory_info)
 
     data = build_trees(data)
-    return data  # return for displayData
+    return data
 
 # Shared logic for creating and populating TempTree trees
 def build_trees(data):
@@ -84,7 +85,7 @@ def build_trees(data):
             dates.append(date)
             print(category, subcategory, date, value)
 
-    return categories, subcategories, dates, values  # return for displayData
+    return categories, subcategories, dates, values
 
             # Optionally insert into your tree here
             # tree.insert(subcategory, value, date)
