@@ -1,5 +1,6 @@
 class Node:
-    def __init__(self, name, date, amount=0):
+    def __init__(self, group, name, date, amount=0):
+        self.group = group
         self.name = name
         self.amount = amount
         self.date = date
@@ -12,9 +13,9 @@ class Tree:
         self.name = name
         self.total_amount = 0
 
-    def insert(self, name, date, amount):
+    def insert(self, group, name, date, amount):
         # inserts a node into the tree
-        new_node = Node(name, date, amount)
+        new_node = Node(group, name, date, amount)
         self.total_amount += amount
 
         if self.root is None:
@@ -33,56 +34,47 @@ class Tree:
                         break
                     current = current.right
 
+    def search(self, node, amount):
+
+        if node is None:
+            return None
+        if node.amount == amount:
+            return node.group, node.amount, node.date
+        elif amount < node.amount:
+            self.search(node.left, amount)
+            return node.left.group, node.left.amount, node.left.date
+        elif amount > node.amount:
+            self.search(node.right, amount)
+            return node.right.group, node.right.amount, node.right.date
+        else:
+            return None, None, None
+
+    def remove(self, name):
+        def delete_node(root, name):
+            if root is None:
+                return root, None
+            if name < root.name:
+                root.left, deleted = delete_node(root.left, name)
+            elif name > root.name:
+                root.right, deleted = delete_node(root.right, name)
+            else:
+                self.total_amount -= root.amount
+                if root.left is None:
+                    return root.right, root
+                elif root.right is None:
+                    return root.left, root
+                min_larger_node = self.get_min(root.right)
+                root.name, root.amount = min_larger_node.name, min_larger_node.amount
+                root.right, _ = delete_node(root.right, min_larger_node.name)
+                deleted = root
+            return root, deleted
+
+        self.root, deleted_node = delete_node(self.root, name)
+        return deleted_node is not None
+
     def display(self, node, level=0, total_spent=1):
         # displays expenses in tree format
         if node is not None:
             self.display(node.left, level + 1, total_spent)
-            percent_of_total = (node.amount / total_spent) * 100 if total_spent > 0 else 0
-            print("  " * level + f"{node.name}: ${node.amount:.2f} ({percent_of_total:.2f}% of total)")
+            print(f"[{node.group}]" + f" {node.name}: ${node.amount:.2f} ({node.date})")
             self.display(node.right, level + 1, total_spent)
-
-
-# stores all expense trees
-expense_trees = []
-total_spent = 0
-
-# loop to add expenses
-while True:
-    has_expense = input("Do you have an expense to add? (yes/no): ").lower()
-    if has_expense != 'yes':
-        break
-
-    exp_name = input("Enter expense name: ")
-    expense_tree = Tree(exp_name)
-    exp_amount = 0
-
-    exp_date = input("Enter expense date: ")
-
-    num_sub = int(input(f"How many subcategories does '{exp_name}' have? (0 for none): "))
-
-    if num_sub > 0:
-        sub_name = input("  Enter subcategory name: ")
-        sub_amount = float(input(f"  Enter amount for {sub_name}: $"))
-        exp_amount += sub_amount
-        expense_tree.insert(sub_name, exp_date, sub_amount)  # first subcategory becomes root
-
-        for _ in range(num_sub - 1):
-            sub_name = input("  Enter subcategory name: ")
-            sub_amount = float(input(f"  Enter amount for {sub_name}: $"))
-            exp_amount += sub_amount
-            expense_tree.insert(sub_name, exp_date, sub_amount)
-    else:
-        exp_amount = float(input(f"Enter amount for {exp_name}: $"))
-        expense_tree.insert(exp_name, exp_date, exp_amount)
-
-    total_spent += exp_amount
-    expense_trees.append(expense_tree)
-
-# display expense report
-print("\nYour Expense Report:")
-for tree in expense_trees:
-    print(f"\nExpense Category: {tree.name} (Total: ${tree.total_amount:.2f})")
-    tree.display(tree.root, total_spent=total_spent)
-
-# print total spent
-print(f"\nTotal Spent: ${total_spent:.2f}")
