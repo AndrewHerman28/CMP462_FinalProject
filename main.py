@@ -27,6 +27,9 @@ class PFM(tk.Tk):
         self.dataTree = tree.Tree("Expense-Values Data")
         self.imported = False
         self.displayData = None
+        self.searchDisplay = None
+        self.deleteFrame = None
+        self.searchFrame = None
 
         self.homePage()
 
@@ -39,7 +42,6 @@ class PFM(tk.Tk):
     def createReturnButton(self):
         self.backToMain = tk.Button(self, text="Return to Main Menu", fg="midnightblue", bg="midnightblue", font=("Times New Roman", 16), width=15, command=self.homePage)
         self.backToMain.place(x=10, y=10)
-
 
     def homePage(self):
         self.clear() # clear when returning back to home from other page
@@ -87,8 +89,8 @@ class PFM(tk.Tk):
             self.amount.delete(0, "end")
             self.date.delete(0, "end")
 
-            self.savedData = tk.Label(self, text = "Data Successfully Submitted...", font = ("Times New Roman", 18), bg = "midnightblue")
-            self.savedData.place(x=275, y=600)
+            self.dataSaved = tk.Label(self, text ="Data Successfully Submitted...", font = ("Times New Roman", 18), bg ="midnightblue")
+            self.dataSaved.place(x=275, y=600)
 
             self.dataTree.insert(expGroup, exp, date, val)
             self.dataTree.display(self.dataTree.root)
@@ -101,12 +103,6 @@ class PFM(tk.Tk):
         self.expenseGroup = tk.Entry(self, width=20, justify="center")
         self.expenseGroup.pack(side="top", pady=10)
         self.expenseGroup.focus_set()
-
-        """
-        self.checked = IntVar()
-        self.group = Checkbutton(self, text="Keep adding to this expense group", variable=self.checked, font=("Times New Roman", 14), width=30, bg="midnightblue")
-        self.group.place(x=525, y=125)
-        """
 
         self.expenseLabel = tk.Label(self, text = "Enter an sub-expense of the expense group:", font = ("Times New Roman", 20), width = 40, bg = "midnightblue")
         self.expenseLabel.pack(side = "top")
@@ -129,12 +125,19 @@ class PFM(tk.Tk):
         enterButton = tk.Button(self, text="Submit Expense Data", font=("Times New Roman", 16), command=saveExpensesAndVals)
         enterButton.pack(side="bottom", pady=20)
 
-    def searchPage(self):
+    def searchPage(self): # Can click back and forth between the search and remove button after an expense value is entered
 
         self.clear()
         self.createReturnButton()
 
         def search():
+
+            if self.deleteFrame is not None:
+                self.deleteFrame.destroy()
+
+            self.searchFrame = tk.Frame(self, bg="midnightblue")
+            self.searchFrame.pack(side="top", pady=10)
+
             # Currently searches based on amount, want to change this to be based off expense name (not group)
             amount = float(self.expenseAmountField.get())
             if self.displayData is not None:
@@ -142,8 +145,7 @@ class PFM(tk.Tk):
                     searchDataFound = item.search(item.root, amount)
                     if searchDataFound is None:
                         continue
-                    # self.searchData = self.dataTree.search(self.dataTree.root, amount)
-                    self.searchDisplay = tk.Label(self, text = f"Expense Group: {searchDataFound[0]}\n"
+                    self.searchDisplay = tk.Label(self.searchFrame, text = f"Expense Group: {searchDataFound[0]}\n"
                                                                 f"Expense Name: {searchDataFound[1]}\n"
                                                                 f"Expense Amount: ${searchDataFound[2]}\n"
                                                                 f"Expense Date: {searchDataFound[3]}", font = ("Times New Roman", 20), bg = "green")
@@ -158,25 +160,62 @@ class PFM(tk.Tk):
                 self.searchDisplay.pack(side="top", pady=10)
 
         def remove():
-            amount = float(self.expenseAmountField.get())
-            self.remove = self.dataTree.remove(amount)
-            # Not done yet with remove function
 
-        self.pageTitle = tk.Label(self, text = "Search/Remove Expenses\n----------------------------------", font = ("Times New Roman", 22), bg = "midnightblue")
+            def delete():
+                group = self.deleteGroupName.get()
+                exp = self.deleteName.get()
+                amount = float(self.expenseAmountField.get())
+                if self.displayData is not None:
+                    for item in self.displayData[4]:
+                        item.remove(item.root, exp, amount) # all trees are checked for this expense
+                        item.display(item.root)
+
+                    self.currentTree = tk.Label(self.deleteFrame,
+                                                text=f"'{exp}' was deleted from expense category '{group}'\n", font = ("Times New Roman", 20), bg = "red")
+                    self.currentTree.pack(side="top", pady=10)
+                else:
+                    self.dataTree.remove(self.dataTree.root, exp, amount)
+                    self.dataTree.display(self.dataTree.root)
+
+            if self.searchFrame is not None:
+                self.searchFrame.destroy()
+
+            self.deleteFrame = tk.Frame(self, bg="midnightblue")
+            self.deleteFrame.pack(side="top", pady=10)
+
+            self.deleteGroupNameLabel = tk.Label(self.deleteFrame, text=f"Enter the expense category: ",
+                                            font=("Times New Roman", 20), bg="midnightblue")
+            self.deleteGroupNameLabel.pack(side="top", pady=10)
+            self.deleteGroupName = tk.Entry(self.deleteFrame, width=20, justify="center")
+            self.deleteGroupName.pack(side="top", pady=10)
+
+            self.deleteNameLabel = tk.Label(self.deleteFrame, text = f"Enter the expense to delete in the expense category: ", font = ("Times New Roman", 20), bg = "midnightblue")
+            self.deleteNameLabel.pack(side="top", pady=10)
+            self.deleteName = tk.Entry(self.deleteFrame, width = 20, justify = "center")
+            self.deleteName.pack(side="top", pady=10)
+
+            self.deleteButton = tk.Button(self.deleteFrame, text = "Delete Expense", font=("Times New Roman", 16), command=delete)
+            self.deleteButton.pack(side="top", pady=10)
+
+            # Not done yet with remove function, removes from the tree data structure but also needs to remove from dictionary (used in "View" menu)
+            # So far, can confirm deletes in terminal display
+
+        self.searchRemoveFrame = tk.Frame(self, bg = "midnightblue")
+        self.searchRemoveFrame.pack(side="top", pady=10)
+        self.pageTitle = tk.Label(self.searchRemoveFrame, text = "Search/Remove Expenses\n----------------------------------", font = ("Times New Roman", 22), bg = "midnightblue")
         self.pageTitle.pack(side = "top")
 
-
-        self.expenseLabel = tk.Label(self, text="Enter an expense amount:", font=("Times New Roman", 20), width=40, bg="midnightblue")
+        self.expenseLabel = tk.Label(self.searchRemoveFrame, text="Enter an expense amount:", font=("Times New Roman", 20), width=40, bg="midnightblue")
         self.expenseLabel.pack(side="top")
-        self.expenseAmountField = tk.Entry(self, width=20, justify="center")
+        self.expenseAmountField = tk.Entry(self.searchRemoveFrame, width=20, justify="center")
         self.expenseAmountField.pack(side="top", pady=10)
         self.expenseAmountField.focus_set()
 
-        self.searchOrRemove = tk.Label(self, text="Would you like to search or remove this expense?", font=("Times New Roman", 20), width=40, bg="midnightblue")
+        self.searchOrRemove = tk.Label(self.searchRemoveFrame, text="Would you like to search or remove this expense?", font=("Times New Roman", 20), width=40, bg="midnightblue")
         self.searchOrRemove.pack(side="top", pady=10)
-        self.search = tk.Button(self, text="Search", font=("Times New Roman", 16), command=search)
+        self.search = tk.Button(self.searchRemoveFrame, text="Search", font=("Times New Roman", 16), command=search)
         self.search.pack(side="top", pady=10)
-        self.remove = tk.Button(self, text="Remove", font=("Times New Roman", 16), command=remove)
+        self.remove = tk.Button(self.searchRemoveFrame, text="Remove", font=("Times New Roman", 16), command=remove)
         self.remove.pack(side="top", pady=10)
 
     def viewPage(self):
