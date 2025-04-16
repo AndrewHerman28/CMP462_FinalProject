@@ -13,6 +13,11 @@ class Tree:
         self.name = name
         self.total_amount = 0
 
+    def get_min(self, node):
+        while node.left is not None:
+            node = node.left
+        return node
+
     def insert(self, group, name, date, amount):
         # inserts a node into the tree
         new_node = Node(group, name, date, amount)
@@ -47,32 +52,38 @@ class Tree:
         else:
             return None, None, None
 
-    def remove(self, name):
-        def delete_node(root, name):
-            if root is None:
-                return root, None
-            if name < root.name:
-                root.left, deleted = delete_node(root.left, name)
-            elif name > root.name:
-                root.right, deleted = delete_node(root.right, name)
-            else:
-                self.total_amount -= root.amount
-                if root.left is None:
-                    return root.right, root
-                elif root.right is None:
-                    return root.left, root
-                min_larger_node = self.get_min(root.right)
-                root.name, root.amount = min_larger_node.name, min_larger_node.amount
-                root.right, _ = delete_node(root.right, min_larger_node.name)
-                deleted = root
-            return root, deleted
+    # New Remove function
+    def remove(self, root, name, amount):
+        def replacement(nodeRoot):
+            # when item has 2 children
+            nodeRoot = nodeRoot.right
+            while nodeRoot is not None and nodeRoot.left is not None:
+                nodeRoot = nodeRoot.left
+            return nodeRoot
 
-        self.root, deleted_node = delete_node(self.root, name)
-        return deleted_node is not None
+        if root is None:  # base
+            return root
 
-    def display(self, node, level=0, total_spent=1):
+        if root.amount > amount:  # 1 child
+            root.left = self.remove(root.left, name, amount)
+        elif root.amount < amount:  # 1 child
+            root.right = self.remove(root.right, name, amount)
+
+        else:  # 2 children
+            if root.left is None:
+                return root.right
+            if root.right is None:
+                return root.left
+
+            newRoot = replacement(root)
+            root.name = newRoot.name
+            root.right = self.remove(root.right, newRoot.name, amount)
+
+        return root
+
+    def display(self, node):
         # displays expenses in tree format
         if node is not None:
-            self.display(node.left, level + 1, total_spent)
+            self.display(node.left)
             print(f"[{node.group}]" + f" {node.name}: ${node.amount:.2f} ({node.date})")
-            self.display(node.right, level + 1, total_spent)
+            self.display(node.right)
