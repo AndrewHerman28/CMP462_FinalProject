@@ -65,18 +65,17 @@ def parse_txt_and_build_trees(file_path):
 
 # Shared logic for creating and populating TempTree trees
 def build_trees(data):
-    trees = set()
+    trees = list()
     # lists so can be used on view page; view page uses matplotlib which requires lists to display data
     categories = list()
     subcategories = list()
     dates = list()
     values = list()
 
-    print(data)
-
     for category in data:
         dataTree = tree.Tree(category)
-        trees.add(dataTree)
+        if dataTree not in trees:
+            trees.append(dataTree)
         for entry in data[category]:
             categories.append(category)
             subcategory = entry['Subcategory']
