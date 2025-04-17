@@ -87,3 +87,9 @@ class Tree:
             self.display(node.left)
             print(f"[{node.group}]" + f" {node.name}: ${node.amount:.2f} ({node.date})")
             self.display(node.right)
+
+    def traverse(self, node):
+        if node:
+            self.traverse(node.left)
+            print(node.name, node.amount)
+            self.traverse(node.right)
