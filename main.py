@@ -2,7 +2,6 @@
 # GUI + main (calls tree and graph)
 
 import tkinter as tk
-from unicodedata import category
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
