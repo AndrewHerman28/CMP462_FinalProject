@@ -52,7 +52,7 @@ class Tree:
         else:
             return None, None, None
 
-    # New Remove function
+    # New Remove Function
     def remove(self, root, name, amount):
         def replacement(nodeRoot):
             # when item has 2 children
@@ -87,3 +87,24 @@ class Tree:
             self.display(node.left)
             print(f"[{node.group}]" + f" {node.name}: ${node.amount:.2f} ({node.date})")
             self.display(node.right)
+
+    def traverse(self, node):
+        if node:
+            self.traverse(node.left)
+            print(node.group, node.name, node.amount, node.date)
+            self.traverse(node.right)
+
+    def newSearch(self, node, group, name, date, amount, nodes):
+        if node is None:
+            return None
+
+        if node:
+            self.newSearch(node.left, group, name, date, amount, nodes)
+            if group == node.group or group is None:
+                if name == node.name or name is None:
+                    if date == node.date or date is None:
+                        if amount == node.amount or amount is None:
+                            nodes.append([node.group, node.name, node.amount, node.date])
+            self.newSearch(node.right, group, name, date, amount, nodes)
+
+        return nodes
