@@ -69,7 +69,6 @@ def parse_txt_and_build_trees(file_path, all_trees):
 
 # Shared logic for creating and populating TempTree trees
 def build_trees(data, all_trees):
-    # lists so can be used on view page; view page uses matplotlib which requires lists to display data
 
     for category in data:
         for entry in data[category]:
