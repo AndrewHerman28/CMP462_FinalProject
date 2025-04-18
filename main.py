@@ -79,7 +79,7 @@ class PFM(tk.Tk):
             btn.pack(side="top", pady=10)
             self.buttons.append(btn)
 
-    def enableAllButtons(self): # Import data button needs this to enable all buttons, cannot do simply pressed boolean
+    def enableAllButtons(self): # Import data button needs this to enable all buttons
         for btn in self.buttons:
             btn.config(state='normal')
 
@@ -135,7 +135,7 @@ class PFM(tk.Tk):
                                 command=saveExpensesAndVals)
         enterButton.pack(side="bottom", pady=20)
 
-    def searchPage(self):  # Can click back and forth between the search and remove button after an expense value is entered
+    def searchPage(self):
 
         self.clear()
         self.createReturnButton()
