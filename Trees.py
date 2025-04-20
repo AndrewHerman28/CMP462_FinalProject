@@ -1,3 +1,7 @@
+import tkinter as tk
+from datetime import datetime
+
+
 class Node:
     def __init__(self, group, name, date, amount=0):
         self.group = group
@@ -94,21 +98,17 @@ class Tree:
             print(node.group, node.name, node.amount, node.date)
             self.traverse(node.right)
 
-    def newSearch(self, node, group, name, from_date, to_date, amount, nodes):
+    def newSearch(self, node, group, name, date, amount, nodes):
         if node is None:
             return None
 
-        f_date = HelperFunctions.convert_to_date(from_date)
-        t_date = HelperFunctions.convert_to_date(to_date)
-
         if node:
-            node_date = HelperFunctions.convert_to_date(node.date)
-            self.newSearch(node.left, group, name, from_date, to_date, amount, nodes)
-            if (group == node.group or group is None
-                    and name == node.name or name is None
-                    and f_date <= node_date <= t_date
-                    and amount == node.amount or amount is None):
-                nodes.append([node.group, node.name, node.amount, node.date])
-            self.newSearch(node.right, group, name, from_date, to_date, amount, nodes)
+            self.newSearch(node.left, group, name, date, amount, nodes)
+            if group == node.group or group is None:
+                if name == node.name or name is None:
+                    if date == node.date or date is None:
+                        if amount == node.amount or amount is None:
+                            nodes.append([node.group, node.name, node.amount, node.date])
+            self.newSearch(node.right, group, name, date, amount, nodes)
 
         return nodes
