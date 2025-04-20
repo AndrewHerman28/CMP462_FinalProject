@@ -9,8 +9,8 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import readFile  # ReadFile.py in repo
 import graph  # Graphs.py in repo
 import tree  # Trees.py in repo
-import HelperFunctions
-import Calendar
+import HelperFunctions # HelperFunctions.py in repo
+from Calendar import open_calendar # Calendar.py in repo
 
 class PFM(tk.Tk):
 
@@ -42,7 +42,7 @@ class PFM(tk.Tk):
         self.searchDisplay = None
         self.searchFrame = None
         self.deleteFrame = None
-        self.pressedAddPage = False
+        self.pressedDataIn = False
 
         self.homePage()
 
@@ -70,7 +70,7 @@ class PFM(tk.Tk):
 
         self.buttonFrame = tk.Frame(self)
         for text, command in self.buttonNames:
-            if (command == self.searchPage or command == self.viewPage) and self.pressedAddPage is False:
+            if (command == self.searchPage or command == self.viewPage) and self.pressedDataIn is False:
                 state='disabled'
             else:
                 state='normal'
@@ -79,14 +79,15 @@ class PFM(tk.Tk):
             btn.pack(side="top", pady=10)
             self.buttons.append(btn)
 
-    def enableAllButtons(self): # Import data button needs this to enable all buttons
-        for btn in self.buttons:
-            btn.config(state='normal')
+    def enableAllButtons(self): # Import data button needs this to enable all buttons, cannot do simply pressed boolean
+        if self.pressedDataIn:
+            for btn in self.buttons:
+                btn.config(state='normal')
 
     def addPage(self):
 
         self.clear()
-        self.pressedAddPage = True
+        self.pressedDataIn = True
         self.createReturnButton()
 
         def saveExpensesAndVals():
@@ -135,7 +136,7 @@ class PFM(tk.Tk):
                                 command=saveExpensesAndVals)
         enterButton.pack(side="bottom", pady=20)
 
-    def searchPage(self):
+    def searchPage(self):  # Can click back and forth between the search and remove button after an expense value is entered
 
         self.clear()
         self.createReturnButton()
@@ -165,6 +166,8 @@ class PFM(tk.Tk):
             group = selected_group.get()
             name = expenseEntry.get()
             amount = amountEntry.get()
+            dateF = fromDate.get()
+            dateT = toDate.get()
             date = dateEntry.get()
 
             if group == "":
@@ -173,6 +176,10 @@ class PFM(tk.Tk):
                 name = None
             if amount == "":
                 amount = None
+            if dateF == "":
+                dateF = None
+            if dateT == "":
+                dateT = None
             if date == "":
                 date = None
             nodes = []
@@ -180,6 +187,7 @@ class PFM(tk.Tk):
                 amount = float(amount)
 
             searchDisplay = self.trees[group].newSearch(self.trees[group].root, group, name, date, amount, nodes)
+            # When search is updated to need "from date" and "to date" change this line to take 2 date parameters
 
             for item in searchDisplay:
                 node = HelperFunctions.create_label_L(self.searchFrame, f"Expense Group: {item[0]}\n"
@@ -200,6 +208,8 @@ class PFM(tk.Tk):
                                                       text="Search/Remove Expenses\n----------------------------------")
 
         expenseGroupLabel = HelperFunctions.create_label(self.searchRemoveFrame, "\nEnter the expense group:")
+        groupNeeded = tk.Label(self.searchRemoveFrame, text="*Note: Must enter an expense group to proceed", font=("Times New Roman", 12), bg="midnightblue")
+        groupNeeded.pack(side="top", pady=10)
 
         selected_group = tk.StringVar()
         groupDropdown = tk.OptionMenu(self.searchRemoveFrame, selected_group, *self.trees.keys())
@@ -211,8 +221,19 @@ class PFM(tk.Tk):
         amountLabel = HelperFunctions.create_label(self.searchRemoveFrame, "Search by Amount:")
         amountEntry = HelperFunctions.create_entry(self.searchRemoveFrame)
 
-        dateLabel = HelperFunctions.create_label(self.searchRemoveFrame, "Search by Date:")
+        dateLabel = HelperFunctions.create_label(self.searchRemoveFrame, "Search by Date (mm/dd/yyyy):")
         dateEntry = HelperFunctions.create_entry(self.searchRemoveFrame)
+
+        self.dateFrame = tk.Frame(self.searchRemoveFrame, bg="midnightblue")
+        self.dateFrame.pack(side="top", pady=10)
+
+        fromDate = tk.StringVar(value=None)
+        fromButton = tk.Button(self.dateFrame, text="Search From:", command=lambda: open_calendar(fromButton, fromDate), bg = "midnightblue")
+        fromButton.pack(side="left", pady=10)
+
+        toDate = tk.StringVar(value=None)
+        toButton = tk.Button(self.dateFrame, text="Search To:", command=lambda: open_calendar(toButton, toDate), bg = "midnightblue")
+        toButton.pack(side="right", pady=10)
 
         self.searching = tk.Button(self.searchRemoveFrame, text="Search", font=("Times New Roman", 16), command=search)
         self.searching.pack(side="top")
@@ -227,6 +248,7 @@ class PFM(tk.Tk):
             graphGroupChoice = selected_option2.get()
 
             group = self.trees[graphGroupChoice].newSearch(self.trees[graphGroupChoice].root, self.trees[graphGroupChoice].name, None, None, None, [])
+            # Add extra None parameter once "from date" and "to date" are added to search function
 
             global canvas
             fig = Figure(figsize=(10, 7), dpi=75)
@@ -301,6 +323,7 @@ class PFM(tk.Tk):
         self.data = readFile.open_file_dialog(self.trees, self)
         if self.data is None:
             successLabel = HelperFunctions.create_label(self, "Data Successfully Imported...")
+            self.pressedDataIn = True
             self.enableAllButtons()
             self.imported = True
         else:
