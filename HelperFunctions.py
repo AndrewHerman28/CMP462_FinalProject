@@ -1,5 +1,4 @@
 import tkinter as tk
-from datetime import datetime
 
 def create_label(self, text):
     label = tk.Label(self, text=text, font=("Times New Roman", 20), bg="midnightblue")
@@ -11,8 +10,10 @@ def create_label_L(self, text, color):
     label.pack(side="left", pady=10, padx=10)
     return label
 
-def convert_to_date(str):
-    return datetime.strptime(str, "%m/%d/%Y")
+def create_label_R(self, text, color):
+    label = tk.Label(self, text=text, font=("Times New Roman", 18), bg=color)
+    label.pack(side="right", pady=10, padx=10)
+    return label
 
 def create_label_B(self, text):
     label = tk.Label(self, text=text, font=("Times New Roman", 18), bg="midnightblue")
