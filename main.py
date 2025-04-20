@@ -94,23 +94,23 @@ class PFM(tk.Tk):
             expense_group = expenseGroupEntry.get()
             subcategory = expenseEntry.get()
             amount = float(amountEntry.get())
-            date = dateEntry.get()
+            dateEntry = date.get()
 
             self.expenseGroups.append(expense_group)
             self.expenses.append(subcategory)
             self.expensesVals.append(amount)
-            self.dates.append(date)
+            self.dates.append(dateEntry)
 
             expenseGroupEntry.delete(0, "end")
             expenseEntry.delete(0, "end")
             amountEntry.delete(0, "end")
-            dateEntry.delete(0, "end")
+            dateButton.config(text = "Date")
 
             if expense_group in self.trees:
-                self.trees[expense_group].insert(expense_group, subcategory, date, amount)
+                self.trees[expense_group].insert(expense_group, subcategory, dateEntry, amount)
             else:
                 new_tree = tree.Tree(expense_group)
-                new_tree.insert(expense_group, subcategory, date, amount)
+                new_tree.insert(expense_group, subcategory, dateEntry, amount)
                 self.trees[expense_group] = new_tree
 
         pageTitle = HelperFunctions.create_label(self, "Add Expenses\n----------------------------------")
@@ -129,7 +129,9 @@ class PFM(tk.Tk):
 
         # ----- Date of expense -----
         dateLabel = HelperFunctions.create_label(self, "\nEnter the date for this expense (mm/dd/yyyy):")
-        dateEntry = HelperFunctions.create_entry(self)
+        date = tk.StringVar(value=None)
+        dateButton = tk.Button(self, text="Date", command=lambda: open_calendar(dateButton, date), bg="midnightblue")
+        dateButton.pack(side="top", pady=10)
 
         # ----- Submit Button -----
         enterButton = tk.Button(self, text="Submit Expense Data", font=("Times New Roman", 16),
