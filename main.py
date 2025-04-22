@@ -11,6 +11,7 @@ import graph  # Graphs.py in repo
 import tree  # Trees.py in repo
 import HelperFunctions # HelperFunctions.py in repo
 from Calendar import open_calendar # Calendar.py in repo
+from datetime import datetime
 
 class PFM(tk.Tk):
 
@@ -170,7 +171,6 @@ class PFM(tk.Tk):
             amount = amountEntry.get()
             dateF = fromDate.get()
             dateT = toDate.get()
-            date = dateEntry.get()
 
             if group == "":
                 group = None
@@ -182,14 +182,11 @@ class PFM(tk.Tk):
                 dateF = None
             if dateT == "":
                 dateT = None
-            if date == "":
-                date = None
             nodes = []
             if amount is not None:
                 amount = float(amount)
 
-            searchDisplay = self.trees[group].newSearch(self.trees[group].root, group, name, date, amount, nodes)
-            # When search is updated to need "from date" and "to date" change this line to take 2 date parameters
+            searchDisplay = self.trees[group].newSearch(self.trees[group].root, group, name, dateF, dateT, amount, nodes)
 
             for item in searchDisplay:
                 node = HelperFunctions.create_label_L(self.searchFrame, f"Expense Group: {item[0]}\n"
@@ -224,17 +221,16 @@ class PFM(tk.Tk):
         amountEntry = HelperFunctions.create_entry(self.searchRemoveFrame)
 
         dateLabel = HelperFunctions.create_label(self.searchRemoveFrame, "Search by Date (mm/dd/yyyy):")
-        dateEntry = HelperFunctions.create_entry(self.searchRemoveFrame)
 
         self.dateFrame = tk.Frame(self.searchRemoveFrame, bg="midnightblue")
-        self.dateFrame.pack(side="top", pady=10)
+        self.dateFrame.pack(side="top")
 
         fromDate = tk.StringVar(value=None)
-        fromButton = tk.Button(self.dateFrame, text="Search From:", command=lambda: open_calendar(fromButton, fromDate), bg = "midnightblue")
+        fromButton = tk.Button(self.dateFrame, text="Search From:", command=lambda: open_calendar(fromButton, fromDate), bg = "midnightblue", font=("Times New Roman", 16))
         fromButton.pack(side="left", pady=10)
 
         toDate = tk.StringVar(value=None)
-        toButton = tk.Button(self.dateFrame, text="Search To:", command=lambda: open_calendar(toButton, toDate), bg = "midnightblue")
+        toButton = tk.Button(self.dateFrame, text="Search To:", command=lambda: open_calendar(toButton, toDate), bg = "midnightblue", font=("Times New Roman", 16))
         toButton.pack(side="right", pady=10)
 
         self.searching = tk.Button(self.searchRemoveFrame, text="Search", font=("Times New Roman", 16), command=search)
@@ -249,8 +245,7 @@ class PFM(tk.Tk):
             graphChoice = selected_option1.get()
             graphGroupChoice = selected_option2.get()
 
-            group = self.trees[graphGroupChoice].newSearch(self.trees[graphGroupChoice].root, self.trees[graphGroupChoice].name, None, None, None, [])
-            # Add extra None parameter once "from date" and "to date" are added to search function
+            group = self.trees[graphGroupChoice].newSearch(self.trees[graphGroupChoice].root, self.trees[graphGroupChoice].name, None, None, None, None, None, [])
 
             global canvas
             fig = Figure(figsize=(10, 7), dpi=75)
