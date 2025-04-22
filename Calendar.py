@@ -13,7 +13,7 @@ def open_calendar(button, date):
     top = tk.Tk()
     top.attributes("-topmost", True)
     top.title("Select Date")
-    cal = Calendar(top, selectmode='day', date_pattern='yyyy-mm-dd')
+    cal = Calendar(top, selectmode='day', date_pattern='mm/dd/yyyy')
     cal.pack(pady=10)
 
     confirm_btn = ttk.Button(top, text="OK", command=confirm_date)
