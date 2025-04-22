@@ -24,7 +24,7 @@ class Tree:
 
     def insert(self, group, name, date, amount):
         # inserts a node into the tree
-        date = datetime.strptime(date, "%m/%d/%Y")
+        date = datetime.strptime(date, "%m-%d-%Y")
         new_node = Node(group, name, date, amount)
         self.total_amount += amount
 
