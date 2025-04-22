@@ -98,17 +98,18 @@ class Tree:
             print(node.group, node.name, node.amount, node.date)
             self.traverse(node.right)
 
-    def newSearch(self, node, group, name, date, amount, nodes):
+        def newSearch(self, node, group, name, date, f_date, t_date, amount, nodes):
         if node is None:
             return None
 
         if node:
-            self.newSearch(node.left, group, name, date, amount, nodes)
+            self.newSearch(node.left, group, name, date, f_date, t_date, amount, nodes)
             if group == node.group or group is None:
                 if name == node.name or name is None:
                     if date == node.date or date is None:
-                        if amount == node.amount or amount is None:
-                            nodes.append([node.group, node.name, node.amount, node.date])
-            self.newSearch(node.right, group, name, date, amount, nodes)
+                        if f_date <= node.date <= t_date or f_date is None or t_date is None:
+                            if amount == node.amount or amount is None:
+                                nodes.append([node.group, node.name, node.amount, node.date])
+            self.newSearch(node.right, group, name, date, f_date, t_date, amount, nodes)
 
         return nodes
