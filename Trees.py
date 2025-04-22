@@ -44,19 +44,6 @@ class Tree:
                         break
                     current = current.right
 
-    def search(self, node, amount):
-
-        if node is None:
-            return None
-        if node.amount == amount:
-            return node.group, node.name, node.amount, node.date
-        elif amount < node.amount:
-            return self.search(node.left, amount)
-        elif amount > node.amount:
-            return self.search(node.right, amount)
-        else:
-            return None, None, None
-
     # New Remove Function
     def remove(self, root, name, amount):
         def replacement(nodeRoot):
@@ -99,17 +86,22 @@ class Tree:
             print(node.group, node.name, node.amount, node.date)
             self.traverse(node.right)
 
-    def newSearch(self, node, group, name, date, amount, nodes):
+    def newSearch(self, node, group, name, f_date, t_date, amount, nodes):
         if node is None:
-            return None
+            return nodes
 
-        if node:
-            self.newSearch(node.left, group, name, date, amount, nodes)
-            if group == node.group or group is None:
-                if name == node.name or name is None:
-                    if date == node.date or date is None:
-                        if amount == node.amount or amount is None:
-                            nodes.append([node.group, node.name, node.amount, node.date])
-            self.newSearch(node.right, group, name, date, amount, nodes)
+        self.newSearch(node.left, group, name, f_date, t_date, amount, nodes)
+
+        group_match = (group is None) or (group == node.group)  # If expense group matches or null
+        name_match = (name is None) or (name == node.name)  # If name matches or null
+        amount_match = (amount is None) or (amount == node.amount)  # If value matches or null
+        from_date_match = (f_date is None) or (datetime.strptime(f_date, "%m/%d/%Y") <= node.date)  # If node date is greater than from date
+        to_date_match = (t_date is None) or (datetime.strptime(t_date, "%m/%d/%Y") >= node.date)  # If node date is less than to date
+
+        # If all matches are met add nodes to list
+        if group_match and name_match and from_date_match and to_date_match and amount_match:
+            nodes.append([node.group, node.name, node.amount, node.date])
+
+        self.newSearch(node.right, group, name, f_date, t_date, amount, nodes)
 
         return nodes
