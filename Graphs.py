@@ -3,7 +3,6 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from datetime import datetime
 
-
 def make_pie_chart(fig, values, names, pos, chart_name):
     pie_chart = fig.add_subplot(pos)
     wedges, texts, autotexts = pie_chart.pie(values, labels=names, autopct='%1.1f%%',
