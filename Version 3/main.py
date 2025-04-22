@@ -139,8 +139,7 @@ class PFM(tk.Tk):
                                 command=saveExpensesAndVals)
         enterButton.pack(side="bottom", pady=20)
 
-    def searchPage(
-            self):  # Can click back and forth between the search and remove button after an expense value is entered
+    def searchPage(self):
 
         self.clear()
         self.createReturnButton()
@@ -152,7 +151,6 @@ class PFM(tk.Tk):
                 delete = delete.rstrip(")")
                 delete = delete.split(", ")
                 self.trees[group].remove(self.trees[group].root, delete[1], float(delete[2]))
-
                 updated = HelperFunctions.create_label_B(self.deleteFrame,
                                                          f"'{delete[1]}' was successfully deleted from '{self.trees[group].name}'")
 
@@ -175,7 +173,6 @@ class PFM(tk.Tk):
             dateT = toDate.get()
             date = dateEntry.get()
 
-
             if name == "":
                 name = None
             if amount == "":
@@ -190,30 +187,64 @@ class PFM(tk.Tk):
             if amount is not None:
                 amount = float(amount)
 
-            # Updated call to match the method signature
+            # Store the search results as instance variable
+            self.all_results = []
             if group:
-                searchDisplay = self.trees[group].newSearch(self.trees[group].root,group, name,date,dateF,dateT, amount, nodes)
+                self.all_results = self.trees[group].newSearch(self.trees[group].root, group, name, date, dateF, dateT, amount, nodes)
             else:
-                for group in self.trees:
-                    searchDisplay = self.trees[group].newSearch(self.trees[group].root,group, name,date,dateF,dateT, amount, nodes)
+                for tree_group in self.trees:
+                    results = self.trees[tree_group].newSearch(self.trees[tree_group].root, tree_group, name, date, dateF, dateT, amount, nodes )
+                    if results:
+                        self.all_results.extend(results)
 
+            # Initialize pagination variables
+            self.current_page = 0
+            self.items_per_page = 5
 
+            def display_current_page():
+                # Clear previous results
+                for widget in self.searchFrame.winfo_children():
+                    widget.destroy()
 
+                start_idx = self.current_page * self.items_per_page
+                end_idx = start_idx + self.items_per_page
+                current_page_items = self.all_results[start_idx:end_idx]
 
+                for item in current_page_items:
+                    node = HelperFunctions.create_label_L(
+                        self.searchFrame,
+                        f"Expense Group: {item[0]}\n"
+                        f"Expense Name: {item[1]}\n"
+                        f"Expense Amount: {item[2]}\n"
+                        f"Expense Date: {item[3]}",
+                        "green"
+                    )
 
+            def next_page():
+                if (self.current_page + 1) * self.items_per_page < len(self.all_results):
+                    self.current_page += 1
+                    display_current_page()
 
+            def prev_page():
+                if self.current_page > 0:
+                    self.current_page -= 1
+                    display_current_page()
 
+            # Display initial page
+            display_current_page()
 
+            # Create navigation buttons
+            prev_button = tk.Button(self.deleteFrame, text="←", command=prev_page,
+                                    font=("Times New Roman", 16),
+                                    bg="midnightblue")
+            prev_button.pack(side="left", pady=10)
 
-            for item in searchDisplay:
-                node = HelperFunctions.create_label_L(
-                    self.searchFrame,
-                    f"Expense Group: {item[0]}\n"
-                    f"Expense Name: {item[1]}\n"
-                    f"Expense Amount: {item[2]}\n"
-                    f"Expense Date: {item[3]}",
-                    "green")
+            next_button = tk.Button(self.deleteFrame, text="→", command=next_page,
+                                    font=("Times New Roman", 16),
+                                    bg="midnightblue")
+            next_button.pack(side="right", pady=10)
 
+            # Add delete functionality
             deleteLabel = HelperFunctions.create_label(self.deleteFrame, f"Select Expense to Delete:")
             delete_option = tk.StringVar()
             deleteDropdown = tk.OptionMenu(self.deleteFrame, delete_option, *nodes)

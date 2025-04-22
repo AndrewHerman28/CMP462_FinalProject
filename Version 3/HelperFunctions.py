@@ -27,3 +27,25 @@ def create_entry(self):
     entry.focus_set()
     return entry
 
+def prev_page(self, page_expenses):
+    if self.current_page > 0:
+        self.current_page -= 1
+        self.display_search_results(self, page_expenses)
+
+def display_search_results(self, page_expenses):
+    for item in page_expenses:
+        node = create_label_L(
+            self.searchFrame,
+            f"Expense Group: {item[0]}\n"
+            f"Expense Name: {item[1]}\n"
+            f"Expense Amount: {item[2]}\n"
+            f"Expense Date: {item[3]}",
+            "green")
+
+def next_page(self, page_expenses):
+    if (self.current_page + 1) * self.results_per_page < len(self.expenses):
+        self.current_page += 1
+        self.display_search_results(self, page_expenses)
+
+
+
