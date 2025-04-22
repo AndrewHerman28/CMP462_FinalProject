@@ -11,6 +11,7 @@ class Node:
         self.left = None
         self.right = None
 
+
 class Tree:
     def __init__(self, name):
         self.root = None
@@ -102,41 +103,14 @@ class Tree:
         if node is None:
             return None
 
-        if f_date and t_date:  # Only parse dates if they are provided
-            try:
-                # First try mm/dd/yyyy format
-                from_date = datetime.strptime(f_date, "%m/%d/%Y")
-                to_date = datetime.strptime(t_date, "%m/%d/%Y")
-            except ValueError:
-                try:
-                    # If that fails, try yyyy-mm-dd format
-                    from_date = datetime.strptime(f_date, "%Y-%m-%d")
-                    to_date = datetime.strptime(t_date, "%Y-%m-%d")
-                except ValueError:
-                    # If both formats fail, return empty result
-                    return nodes
-
         if node:
-            try:
-                # Handle both date formats for node date
-                try:
-                    node_date = datetime.strptime(node.date, "%m/%d/%Y")
-                except ValueError:
-                    node_date = datetime.strptime(node.date, "%Y-%m-%d")
-
-                self.newSearch(node.left, group, name, date, f_date, t_date, amount, nodes)
-                if group == node.group or group is None:
-                    if name == node.name or name is None:
-                        if f_date is None and t_date is None:
-                            date_match = True
-                        else:
-                            date_match = from_date <= node_date <= to_date
-                        if date_match:
+            self.newSearch(node.left, group, name, date, f_date, t_date, amount, nodes)
+            if group == node.group or group is None:
+                if name == node.name or name is None:
+                    if date == node.date or date is None:
+                        if f_date <= node.date <= t_date or f_date is None or t_date is None:
                             if amount == node.amount or amount is None:
                                 nodes.append([node.group, node.name, node.amount, node.date])
-                self.newSearch(node.right, group, name, date, f_date, t_date, amount, nodes)
-            except ValueError:
-                # Skip this node if date parsing fails
-                pass
+            self.newSearch(node.right, group, name, date, f_date, t_date, amount, nodes)
 
         return nodes
