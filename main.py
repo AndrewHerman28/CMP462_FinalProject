@@ -24,10 +24,6 @@ class PFM(tk.Tk):
         self.attributes("-topmost", True)  # Moves in front of other windows
         self.configure(bg="midnightblue")  # Can change, chose blue for now
 
-        self.expenseGroups = []
-        self.expenses = []
-        self.expensesVals = []
-        self.dates = []
         self.trees = {}
         self.data = None
 
@@ -97,11 +93,6 @@ class PFM(tk.Tk):
             amount = float(amountEntry.get())
             dateEntry = date.get()
 
-            self.expenseGroups.append(expense_group)
-            self.expenses.append(subcategory)
-            self.expensesVals.append(amount)
-            self.dates.append(dateEntry)
-
             expenseGroupEntry.delete(0, "end")
             expenseEntry.delete(0, "end")
             amountEntry.delete(0, "end")
@@ -115,6 +106,7 @@ class PFM(tk.Tk):
                 self.trees[expense_group] = new_tree
 
         pageTitle = HelperFunctions.create_label(self, "Add Expenses\n----------------------------------")
+        note = HelperFunctions.create_label(self, "*Note: To add an expense, do not leave any criteria blank.")
 
         # ----- Expense -----
         expenseGroupLabel = HelperFunctions.create_label(self, "\nEnter the expense group:")
@@ -150,9 +142,11 @@ class PFM(tk.Tk):
                 delete = delete.lstrip("(")
                 delete = delete.rstrip(")")
                 delete = delete.split(", ")
+                group = delete[0].replace("'", "")
+                group = group.replace('"', "")
                 self.trees[group].remove(self.trees[group].root, delete[1], float(delete[2]))
 
-                updated = HelperFunctions.create_label_B(self.deleteFrame, f"'{delete[1]}' was successfully deleted from '{self.trees[group].name}'")
+                updated = HelperFunctions.create_label_B(self.deleteFrame, f"'{delete[1]}' was successfully deleted from '{self.trees[group].name}'", "red")
 
             if self.deleteFrame is not None:
                 self.deleteFrame.destroy()
@@ -186,17 +180,80 @@ class PFM(tk.Tk):
             if amount is not None:
                 amount = float(amount)
 
-            searchDisplay = self.trees[group].newSearch(self.trees[group].root, group, name, dateF, dateT, amount, nodes)
+            # Store the search results as instance variable
+            self.all_results = []
+            if group:
+                self.all_results = self.trees[group].newSearch(self.trees[group].root, group, name, dateF, dateT, amount, nodes)
+            else:
+                for tree_group in self.trees:
+                    results = self.trees[tree_group].newSearch(self.trees[tree_group].root, tree_group, name, dateF, dateT, amount, nodes )
+                    if results:
+                        self.all_results.extend(results)
 
-            for item in searchDisplay:
-                node = HelperFunctions.create_label_L(self.searchFrame, f"Expense Group: {item[0]}\n"
-                                                       f"Expense Name: {item[1]}\n"
-                                                       f"Expense Amount: {item[2]}\n"
-                                                       f"Expense Date: {item[3]}", "green")
+            # Store the search results as instance variable
+            self.all_results = []
+            if group:
+                self.all_results = self.trees[group].newSearch(self.trees[group].root, group, name, dateF, dateT, amount, nodes)
+            else:
+                for tree_group in self.trees:
+                    results = self.trees[tree_group].newSearch(self.trees[tree_group].root, tree_group, name, dateF, dateT, amount, nodes )
+                    if results:
+                        self.all_results.extend(results)
+
+            # Initialize pagination variables
+            self.current_page = 0
+            self.items_per_page = 5
+
+            def display_current_page():
+                # Clear previous results
+                for widget in self.searchFrame.winfo_children():
+                    widget.destroy()
+
+                start_idx = self.current_page * self.items_per_page
+                end_idx = start_idx + self.items_per_page
+                current_page_items = self.all_results[start_idx:end_idx]
+
+                for item in current_page_items:
+                    node = HelperFunctions.create_label_L(
+                        self.searchFrame,
+                        f"Expense Group: {item[0]}\n"
+                        f"Expense Name: {item[1]}\n"
+                        f"Expense Amount: {item[2]}\n"
+                        f"Expense Date: {item[3]}",
+                        "green"
+                    )
+
+            def next_page():
+                if (self.current_page + 1) * self.items_per_page < len(self.all_results):
+                    self.current_page += 1
+                    display_current_page()
+
+            def prev_page():
+                if self.current_page > 0:
+                    self.current_page -= 1
+                    display_current_page()
+
+            # Display initial page
+            display_current_page()
+
+            # Create navigation buttons
+            prev_button = tk.Button(self.searchRemoveFrame, text="<--", command=prev_page,
+                                    font=("Times New Roman", 16),
+                                    bg="midnightblue")
+            prev_button.pack(side="left", pady=10)
+
+            next_button = tk.Button(self.searchRemoveFrame, text="-->", command=next_page,
+                                    font=("Times New Roman", 16),
+                                    bg="midnightblue")
+            next_button.pack(side="right", pady=10)
 
             deleteLabel = HelperFunctions.create_label(self.deleteFrame, f"Select Expense to Delete:")
             delete_option = tk.StringVar()
-            deleteDropdown = tk.OptionMenu(self.deleteFrame, delete_option, *nodes)
+            options = []
+            for item in self.all_results:
+                if item not in options:
+                    options.append(item)
+            deleteDropdown = tk.OptionMenu(self.deleteFrame, delete_option, *options)
             deleteDropdown.pack(side="top", pady=10)
             deleteButton = tk.Button(self.deleteFrame, text="Delete Expense",command=deleteFunc, font=("Times New Roman", 16), bg="midnightblue")
             deleteButton.pack(side="top", pady=10)
@@ -207,8 +264,6 @@ class PFM(tk.Tk):
                                                       text="Search/Remove Expenses\n----------------------------------")
 
         expenseGroupLabel = HelperFunctions.create_label(self.searchRemoveFrame, "\nEnter the expense group:")
-        groupNeeded = tk.Label(self.searchRemoveFrame, text="*Note: Must enter an expense group to proceed", font=("Times New Roman", 12), bg="midnightblue")
-        groupNeeded.pack(side="top", pady=10)
 
         selected_group = tk.StringVar()
         groupDropdown = tk.OptionMenu(self.searchRemoveFrame, selected_group, *self.trees.keys())
@@ -245,7 +300,7 @@ class PFM(tk.Tk):
             graphChoice = selected_option1.get()
             graphGroupChoice = selected_option2.get()
 
-            group = self.trees[graphGroupChoice].newSearch(self.trees[graphGroupChoice].root, self.trees[graphGroupChoice].name, None, None, None, None, None, [])
+            group = self.trees[graphGroupChoice].newSearch(self.trees[graphGroupChoice].root, self.trees[graphGroupChoice].name, None, None, None, None, [])
 
             global canvas
             fig = Figure(figsize=(10, 7), dpi=75)
