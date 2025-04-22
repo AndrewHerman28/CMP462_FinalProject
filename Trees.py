@@ -1,7 +1,6 @@
 import tkinter as tk
 from datetime import datetime
 
-
 class Node:
     def __init__(self, group, name, date, amount=0):
         self.group = group
@@ -25,6 +24,7 @@ class Tree:
     def insert(self, group, name, date, amount):
         # inserts a node into the tree
         date = datetime.strptime(date, "%m/%d/%Y")
+        date = date.date()
         new_node = Node(group, name, date, amount)
         self.total_amount += amount
 
@@ -95,8 +95,8 @@ class Tree:
         group_match = (group is None) or (group == node.group)  # If expense group matches or null
         name_match = (name is None) or (name == node.name)  # If name matches or null
         amount_match = (amount is None) or (amount == node.amount)  # If value matches or null
-        from_date_match = (f_date is None) or (datetime.strptime(f_date, "%m/%d/%Y") <= node.date)  # If node date is greater than from date
-        to_date_match = (t_date is None) or (datetime.strptime(t_date, "%m/%d/%Y") >= node.date)  # If node date is less than to date
+        from_date_match = (f_date is None) or (datetime.strptime(f_date, "%m/%d/%Y").date() <= node.date)  # If node date is greater than from date
+        to_date_match = (t_date is None) or (datetime.strptime(t_date, "%m/%d/%Y").date() >= node.date)  # If node date is less than to date
 
         # If all matches are met add nodes to list
         if group_match and name_match and from_date_match and to_date_match and amount_match:
