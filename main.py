@@ -240,12 +240,12 @@ class PFM(tk.Tk):
             prev_button = tk.Button(self.searchRemoveFrame, text="<--", command=prev_page,
                                     font=("Times New Roman", 16),
                                     bg="midnightblue")
-            prev_button.pack(side="left", pady=10)
+            prev_button.place(x=0, y=340)
 
             next_button = tk.Button(self.searchRemoveFrame, text="-->", command=next_page,
                                     font=("Times New Roman", 16),
                                     bg="midnightblue")
-            next_button.pack(side="right", pady=10)
+            next_button.place(x=200, y=340)
 
             deleteLabel = HelperFunctions.create_label(self.deleteFrame, f"Select Expense to Delete:")
             delete_option = tk.StringVar()
