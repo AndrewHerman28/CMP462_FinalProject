@@ -40,7 +40,7 @@ def make_bar_graph(fig, values, names, pos, chart_name):
 
 
 def make_line_graph(fig, values, dates, pos, chart_name):
-    sorted_dates = sorted(dates, key=lambda date: datetime.strptime(date, "%m/%d/%Y"))
+    sorted_dates = sorted(dates)
 
     line_chart = fig.add_subplot(pos)
     line_chart.plot(sorted_dates, values, marker='o', linestyle='-', color='dodgerblue', markersize=8, linewidth=2)
