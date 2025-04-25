@@ -16,11 +16,6 @@ class Tree:
         self.name = name
         self.total_amount = 0
 
-    def get_min(self, node):
-        while node.left is not None:
-            node = node.left
-        return node
-
     def insert(self, group, name, date, amount):
         # inserts a node into the tree
         date = datetime.strptime(date, "%m/%d/%Y")
