@@ -1,5 +1,5 @@
 # To run project:
-# Make sure you have downloaded the other 5 files
+# Make sure you have downloaded the other 5 Python source files
 # Run this file
 # Can use ExpenseSheet1.csv or ExpenseSheet2.csv for imported data sample
 
