@@ -17,17 +17,12 @@ def open_file_dialog(all_trees, root):
     )
 
     if file_path:
-        print(f"Selected file: {file_path}")
         ext = os.path.splitext(file_path)[1].lower()
 
         if ext == '.csv' or ext == '.txt':
             parse_and_build_trees(file_path, all_trees)
         else:
             print("Unsupported file type")
-
-    if not file_path:
-        return "f"
-
 
 # Function to parse and build trees from a CSV file
 def parse_and_build_trees(file_path, all_trees):
