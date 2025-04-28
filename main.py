@@ -1,7 +1,7 @@
 # To run project:
 # Make sure you have downloaded the other 5 files
 # Run this file
-# Can use ExpenseSheet1.csv or ExpenseSheet2.csv
+# Can use ExpenseSheet1.csv or ExpenseSheet2.csv for imported data sample
 
 import tkinter as tk
 
