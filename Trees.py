@@ -87,7 +87,7 @@ class Tree:
         self.newSearch(node.left, group, name, f_date, t_date, amount, nodes)
 
         group_match = (group is None) or (group == node.group)  # If expense group matches or null
-        name_match = (name is None) or (name == node.name)  # If name matches or null
+        name_match = (name is None) or (name.lower() == node.name.lower())  # If name matches or null
         amount_match = (amount is None) or (amount == node.amount)  # If value matches or null
         from_date_match = (f_date is None) or (datetime.strptime(f_date, "%m/%d/%Y").date() <= node.date)  # If node date is greater than from date
         to_date_match = (t_date is None) or (datetime.strptime(t_date, "%m/%d/%Y").date() >= node.date)  # If node date is less than to date
